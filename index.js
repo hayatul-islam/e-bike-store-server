@@ -19,6 +19,7 @@ async function run() {
         const database = client.db("eBikeStore");
         const productsCollection = database.collection("products");
         const ordersCollection = database.collection("orders");
+        const reviewsCollection = database.collection("reviews");
 
         // all products
         app.get('/products', async (req, res) => {
@@ -40,6 +41,12 @@ async function run() {
             res.send(order)
         });
 
+        // get orders
+        app.get('/allOrders', async (req, res) => {
+            const orders = await ordersCollection.find({}).toArray();
+            res.send(orders)
+        })
+
         // my orders
         app.get('/myOrders/:email', async (req, res) => {
             const myOrders = await ordersCollection.find({ email: req.params.email }).toArray();
@@ -51,6 +58,24 @@ async function run() {
             const query = { _id: ObjectId(req.params.id) };
             const result = await ordersCollection.deleteOne(query);
             res.send(result)
+        });
+
+        // add review 
+        app.post('/review', async (req, res) => {
+            const result = await reviewsCollection.insertOne(req.body);
+            res.json(result)
+        });
+
+        // get review
+        app.get('/reviews', async (req, res) => {
+            const result = await reviewsCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        // add product 
+        app.post('/addProduct', async (req, res) => {
+            const result = await productsCollection.insertOne(req.body);
+            res.json(result)
         })
 
     }
