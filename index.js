@@ -20,6 +20,7 @@ async function run() {
         const productsCollection = database.collection("products");
         const ordersCollection = database.collection("orders");
         const reviewsCollection = database.collection("reviews");
+        const usersCollection = database.collection("users");
 
         // all products
         app.get('/products', async (req, res) => {
@@ -76,6 +77,32 @@ async function run() {
         app.post('/addProduct', async (req, res) => {
             const result = await productsCollection.insertOne(req.body);
             res.json(result)
+        });
+
+        // add users
+        app.post('/addUsers', async (req, res) => {
+            const result = await usersCollection.insertOne(req.body)
+            res.json(result)
+        });
+
+        // make admin 
+        app.put('/makeAdmin/:email', async (req, res) => {
+            console.log(req.body, req.params);
+            const filter = { email: req.params.email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    role: req.body.role
+                },
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            console.log(result);
+        });
+
+        // check admin
+        app.get('/checkAdmin/:email', async (req, res) => {
+            const result = await usersCollection.find({ email: req.params.email }).toArray();
+            res.send(result);
         })
 
     }
