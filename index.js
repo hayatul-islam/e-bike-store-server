@@ -28,13 +28,21 @@ async function run() {
             res.send(products);
         });
 
-        // single service
+        // single product
         app.get("/products/:id", async (req, res) => {
             const result = await productsCollection
                 .find({ _id: ObjectId(req.params.id) })
                 .toArray();
             res.send(result[0]);
         });
+
+        // products delete
+        app.delete('/products/:id', async (req, res) => {
+
+            const query = { _id: ObjectId(req.params.id) };
+            const result = await productsCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // add order
         app.post('/addOrder', async (req, res) => {
@@ -87,7 +95,6 @@ async function run() {
 
         // make admin 
         app.put('/makeAdmin/:email', async (req, res) => {
-            console.log(req.body, req.params);
             const filter = { email: req.params.email };
             const options = { upsert: true };
             const updateDoc = {
@@ -96,12 +103,25 @@ async function run() {
                 },
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
-            console.log(result);
+            res.send(result);
         });
 
         // check admin
         app.get('/checkAdmin/:email', async (req, res) => {
             const result = await usersCollection.find({ email: req.params.email }).toArray();
+            res.send(result);
+        });
+
+        // status update 
+        app.put('/statusUpdate/:id', async (req, res) => {
+            const filter = { _id: ObjectId(req.params.id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: req.body.status
+                },
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
 
